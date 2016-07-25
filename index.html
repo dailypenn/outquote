@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
   <script src="https://use.typekit.net/psa2uuo.js"></script>
   <script>try{Typekit.load({ async: false });renderContent();}catch(e){}</script>
@@ -17,7 +18,6 @@
         A simple text card creator.
       </p>
     </div>
-    
     <canvas id="canvas">
       Your browser does not support the canvas element. Use a modern browser.
     </canvas>
@@ -41,6 +41,30 @@
     </div>
   </div>
     
+    <style media="screen">
+      body {
+        overflow-x: hidden;
+      }
+      
+      #canvas {
+        transform-origin: 0 0;
+        transform: scale(0.96);
+      }
+      
+      @media (max-width: 1000px) {
+        #canvas {
+          transform: scale(0.6);
+          margin-bottom: -180px;
+        }
+      }
+      
+      @media (max-width: 500px) {
+        #canvas {
+          transform: scale(0.33);
+          margin-bottom: -300px;
+        }
+      }
+    </style>
     
   <script src="script.js"></script>
 </body>
