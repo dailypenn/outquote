@@ -15,12 +15,10 @@
   <div class="container">
     <div class="row">
       <h2>Outquote</h2>
-      <p>
-        A simple text card creator.
-      </p>
+      <p>A simple text card creator.</p>
     </div>
     <canvas id="canvas">
-      Your browser does not support the canvas element. Use a modern browser.
+      Your browser does not support the canvas element. Please use a modern browser.
     </canvas>
   </div>
 
@@ -45,7 +43,7 @@
     <div class="row">
       <div class="four columns">
         <h5>Formatting</h5>
-        <input type="checkbox" id="centerElements">Center Elements</input>
+        <input type="checkbox" id="centerElements">Center text</input>
       </div>
       <div class="four columns">
         <h5>Style</h5>
@@ -54,14 +52,15 @@
           <option value="street">34th Street</option>
           <option value="utb">Under the Button</option>
         </select>
-        <input type="checkbox" id="inverseColors">Use Inverse Colors<br>
-        <input type="checkbox" id="useWordmark">Use DP Wordmark
+        <input type="checkbox" id="inverseColors">Use inverse colors<br>
+        <input type="checkbox" id="useWordmark">Use DP wordmark
       </div>
       <div class="four columns">
         <h5>Elements</h5>
-        <input type="checkbox" id="toggleAttribution" checked>Include Attribution<br>
-        <input type="checkbox" id="togglePicture">Include Photo<br>
-        <button class="u-full-width button-secondary" type="button" id="uploadPicture">Upload Photo &#8593;</button>
+        <input type="checkbox" id="toggleAttribution" checked>Include attribution<br>
+        <input type="checkbox" id="togglePicture">Include photo (must be square)<br>
+        <button class="u-full-width button-secondary" type="button" id="uploadPicture">Upload photo &#8593;</button>
+        <input type="file" accept=".png,.jpg,.jpeg" id="fileInput" hidden>
       </div>
     </div>
     <div class="row">

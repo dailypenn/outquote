@@ -5,6 +5,8 @@ var showAttribution = true;
 var centerElements = false;
 var inverseColors = false;
 var useWordmark = false;
+var includePhoto = false;
+var photoURL = "";
 
 // colors by publication
 var primary = ['#aa1e22', '#44bfbf', '#446cb3'];
@@ -28,6 +30,7 @@ var wrapText = function(context, text, x, y, maxWidth, lineHeight) {
     }
   }
   context.fillText(line, x, y);
+  return y;
 }
 
 var renderContent = function() {
@@ -56,13 +59,90 @@ var renderContent = function() {
   if (centerElements) {
     quoteCtx.textAlign = "center";
   }
-  wrapText(quoteCtx, "\“" + quote + "\”", centerElements ? 500 : 50,
-    canvas.height / 2 - (showAttribution ? 50 : 0), 800, 48);
 
-  var image = new Image();
-  image.onload = function() {
-      quoteCtx.drawImage(image, (centerElements ? canvas.width / 2 - 20: canvas.width - 150), 70, 92, 70);
+  // handle canvas entirely differently based on photo or not
+  if (includePhoto && photoURL != "") {
+    var attribY = wrapText(quoteCtx, "\“" + quote + "\”", centerElements ? 750 : 520,
+      canvas.height / 2 - (showAttribution ? 100 : 70), 460, 48);
+
+    // load logo
+    var image = new Image();
+    image.onload = function() {
+      var aspect = image.width / image.height;
+      if (useWordmark) {
+        var width = 40 * aspect;
+        quoteCtx.drawImage(image, canvas.width - width - 40, 40, width, 40);
+      } else {
+        var width = 50 * aspect;
+        quoteCtx.drawImage(image, canvas.width - width - 40, 40, width, 50);
+      }
+    }
+
+    // load photo
+    var photo = new Image();
+    photo.onload = function() {
+      quoteCtx.drawImage(photo, 30, 30, 440, 440);
+    }
+    photo.src = photoURL;
+
+    if (showAttribution) {
+      quoteCtx.textAlign = "left"; // makes below calculations work\
+      var nameCtx = canvas.getContext("2d");
+      var titleCtx = canvas.getContext("2d");
+
+      // NAME TEXT
+      nameCtx.font = "38px neuzeit-grotesk";
+      if (inverseColors) {
+        nameCtx.fillStyle = primary[pub];
+      } else {
+        nameCtx.fillStyle = "#ffffff";
+      }
+      nameCtx.fillText(name, 520, attribY + 100 < (canvas.height - 70) ? attribY + 100 : canvas.height - 70);
+
+      // TITLE TEXT
+      titleCtx.font = "100 30px neuzeit-grotesk";
+      titleCtx.fillText(title, 520, attribY + 140 < (canvas.height - 30) ? attribY + 140 : canvas.height - 30);
+  	}
+  } else {
+    // NO PHOTO
+    wrapText(quoteCtx, "\“" + quote + "\”", centerElements ? 500 : 50,
+      canvas.height / 2 - (showAttribution ? 50 : 0), 800, 48);
+
+    // load logo
+    var image = new Image();
+    image.onload = function() {
+      var aspect = image.width / image.height;
+      var width = 50 * aspect;
+      quoteCtx.drawImage(image, (centerElements ? (canvas.width - width) / 2 + 10 : canvas.width - width - 50), 50,
+        width, 50);
+    }
+
+    if (showAttribution) {
+      quoteCtx.textAlign = "left"; // makes below calculations work\
+      var nameCtx = canvas.getContext("2d");
+      var titleCtx = canvas.getContext("2d");
+      var nameLength = nameCtx.measureText(name + " | ").width;
+      var titleLength = titleCtx.measureText(title).width;
+
+      var nameCtxX = centerElements ? (canvas.width / 2 - nameLength / 2 - titleLength / 2) : 50;
+      var titleCtxX = nameLength + nameCtxX + 30;
+
+      // NAME TEXT
+      nameCtx.font = "38px neuzeit-grotesk";
+      if (inverseColors) {
+        nameCtx.fillStyle = primary[pub];
+      } else {
+        nameCtx.fillStyle = "#ffffff";
+      }
+      nameCtx.fillText(name + " | ", nameCtxX, canvas.height - 70);
+
+      // TITLE TEXT
+      titleCtx.font = "100 38px neuzeit-grotesk";
+      titleCtx.fillText(title, titleCtxX, canvas.height - 70);
+  	}
   }
+
+  // add logo
   if (useWordmark) {
     if (inverseColors) {
       image.src = "logos/inverse-dp-wordmark.svg";
@@ -76,32 +156,6 @@ var renderContent = function() {
       image.src = logo[pub];
     }
   }
-  image.width = 20;
-
-  if (showAttribution) {
-    quoteCtx.textAlign = "left"; // makes below calculations work\
-    var nameCtx = canvas.getContext("2d");
-    var titleCtx = canvas.getContext("2d");
-    var nameLength = nameCtx.measureText(name + " | ").width;
-    var titleLength = titleCtx.measureText(title).width;
-
-    var nameCtxX = centerElements ? (canvas.width / 2 - nameLength / 2 - titleLength / 2) : 50;
-
-    var titleCtxX = nameLength + nameCtxX + 30;
-
-    // NAME TEXT
-    nameCtx.font = "38px neuzeit-grotesk";
-    if (inverseColors) {
-      nameCtx.fillStyle = primary[pub];
-    } else {
-      nameCtx.fillStyle = "#ffffff";
-    }
-    nameCtx.fillText(name + " | ", nameCtxX, canvas.height - 70);
-
-    // TITLE TEXT
-    titleCtx.font = "100 38px neuzeit-grotesk";
-    titleCtx.fillText(title, titleCtxX, canvas.height - 70);
-	}
 }
 
 window.setTimeout(function() {
@@ -123,7 +177,7 @@ document.getElementById('quoteTitle').oninput = function() {
   renderContent();
 }
 
-document.getElementById('saveButton').addEventListener("click", function() {
+document.getElementById('saveButton').addEventListener('click', function() {
   var dataURL = canvas.toDataURL("image/png");
   var data = atob(dataURL.substring("data:image/png;base64,".length)),
     asArray = new Uint8Array(data.length);
@@ -136,11 +190,7 @@ document.getElementById('saveButton').addEventListener("click", function() {
   saveAs(blob, "quote.png");
 });
 
-/*
-*
-* Event Handlers
-*
-*/
+// EVENT HANDLERS
 
 // Toggle Attribution
 var toggleAttrCheckbox = document.getElementById('toggleAttribution');
@@ -182,4 +232,24 @@ var useWordmarkCheckbox = document.getElementById('useWordmark');
 useWordmarkCheckbox.addEventListener('click', function() {
   useWordmark = !useWordmark;
 	renderContent();
+});
+
+// Include Photo
+var togglePictureCheckbox = document.getElementById('togglePicture');
+togglePictureCheckbox.addEventListener('click', function() {
+  includePhoto = !includePhoto;
+	renderContent();
+});
+
+// Upload Picture
+var uploadPicture = document.getElementById('uploadPicture');
+var fileInput = document.getElementById('fileInput');
+uploadPicture.addEventListener('click', function() {
+  fileInput.click();
+});
+fileInput.addEventListener('change', function() {
+  if (this.files && this.files[0]) {
+    photoURL = URL.createObjectURL(this.files[0]);
+  }
+  renderContent();
 });
