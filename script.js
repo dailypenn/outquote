@@ -1,8 +1,17 @@
 var quote = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
-var name = "Johnathan Mayer";
-var title = "Singer-Singwriter";
+var name = "Amy Gutmann";
+var title = "Penn President";
 var showAttribution = true;
 var centerElements = false;
+var inverseColors = false;
+var useWordmark = false;
+var includePhoto = false;
+var photoURL = "";
+
+// colors by publication
+var primary = ['#aa1e22', '#44bfbf', '#446cb3'];
+var logo = ['logos/dp.svg', 'logos/street.svg', 'logos/utb.svg'];
+var inverse = ['logos/inverse-dp.svg', 'logos/inverse-street.svg', 'logos/utb.svg'];
 
 var wrapText = function(context, text, x, y, maxWidth, lineHeight) {
   var words = text.split(' ');
@@ -21,50 +30,138 @@ var wrapText = function(context, text, x, y, maxWidth, lineHeight) {
     }
   }
   context.fillText(line, x, y);
+  return y;
 }
-
 
 var renderContent = function() {
   var canvas = document.getElementById("canvas");
   canvas.width = 1000;
   canvas.height = 500;
 
+  var pub = document.getElementById("publicationSelect").selectedIndex;
+
   // QUOTE TEXT + BG + IMG
   var quoteCtx = canvas.getContext("2d");
-  quoteCtx.fillStyle = "#aa1e22";
+  quoteCtx.fillStyle = primary[pub];
   quoteCtx.fillRect(0, 0, canvas.width, canvas.height);
+  if (inverseColors) {
+    quoteCtx.fillStyle = "#ffffff";
+    quoteCtx.fillRect(10, 10, canvas.width - 20, canvas.height - 20);
+  }
 
   quoteCtx.font = "200 38px lora";
-  quoteCtx.fillStyle = "#ffffff";
-  // quoteCtx.textAlign = "left";
-  wrapText(quoteCtx, quote + "\”", 50, canvas.height / 2 - (showAttribution ? 50 : 0), 800, 48);
-  quoteCtx.fillText("\“", 36, canvas.height / 2 - (showAttribution ? 50 : 0));
+  if (inverseColors) {
+    quoteCtx.fillStyle = primary[pub];
+  } else {
+    quoteCtx.fillStyle = "#ffffff";
+  }
 
-  var image = new Image();
-  image.onload = function() {
-    quoteCtx.drawImage(image, canvas.width - 150, 70, 92, 70);
-  };
-  image.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAADkAQMAAAAYf4tbAAAABlBMVEX///////9VfPVsAAAAAnRSTlMD/Om1IMwAAASDSURBVHhe1dhBrhwnEAbgQkjBu84yC2u4QpZeWGkfIgfwEbz0wjLcIDeIr8JNzA3CkgWhohmqukiDPSiZ917Sm2Hor/+malqjFiAHYoXxeNU+PtBXhYiYRva6fbj2oa8Ky8h+IZZEIfo2afPBkBgGgI0URopmDwo9sf5oKVZWaTBMWOG5QmzDOGHIRVdiFtOMea6HmMM8YwGooNAY335nIKVaYQqxzljiqUSFIvrGho44YRvlCpOOkOeziVrZHxVAsafgMmEIoNlTcJ0zw+wCumvSub+G/YWGacICbMIsLXPGLMdeYOc5MCcWe+aOZuozk4iLklucWeqYlmvVwByfuhhJg+8w+wd3aXjgcsf232hy9ogcsRc0xw8N9pvMVmIFhsYVwLoRK1oeQj2wBMSSlkcajt5oYgH2W4SNik8dNRQaVYVtvRn2ANw2Xlx8S49BVbUNMjjqlvyNRLgyc2OlDbJCvhO041eAG9PM9JVpbLHyJ0pM3VgmtvEDX3rGRavUfLZf2wDzmbmOFfeFik9TFltsqRYA1MDoWiD2Z7F0Zcf8wDCPzDRmryzQ3ePIdjiYZxZGhhPmB6ZrY9v17Lt2ssLAtgkrI7M9o5InzJUVpnCJ6TVm1ti2xuwa2zGvMNez8E2GS2kKl9L0Q5kZmfvnbFu76baWZh/DcmP7Wtr+0DS3luaeKM18Lw3v/FiZ2JDmcGBDWtMLaTsupbmlNIVLaXrK3DnNzJjBc9o2YxbPaXbG3BJTOLB9wvTI3ISZh7JtZDhh9qFsf2Km/kWaG9NegsHTp+HIltO8W2EZ9pWbRtgX0lxYY36NwYQlfWafZwzgzN5O2Oc19mlkryfs48h+mrA3a+znkb1aY/Dk7McbS/cYPAGLL8HCQ5lfY/BIVtdYWWN5jaUFphDjGgtrzE/Z5cxgnuZ7prEMDG8s/Z3lM7ONlcYKsXhm2Bj6jhn0J6aZxZ5V6FkE2Jjljm3pzCyz2jHbXjo75pjhbVyPzVWLmIXhwYKw97Rm31gCJSwJoz5hZKaZ8a4SM5onZoTVnul+vy/DJgx7ZhsLxGzHvJPNYtdYvLECe8eiMNUUZmKuY8khRllaOzGy0u0QE6s3VgE7Vh2HydaaH1nXNccsXBkvlVlhxgqj4R0xYbKVcLBksMKZBWLmYNnSD9szUlxoqx7OrH88JG9gWQod97+FJWadqjAwrkB1LI3MD/2gS62wrlDTMRhYHfuBhVl0zMrQD65qxwI7szxhgVgUlpjtwnjCC4tjdwuxCsKCdLdS7zKx3DEv3fXUvEjxsWMcpjHxCgOxMGMtV8uU88Quu3TXFK6kMgNmm3R3S9w+nvp0MN1118sa2/HxYCDswoOjkx+E7XwpvOGBCyPbIvDk+e7wXpg+2Dse/MCDIEwF+PYhDN6tMfhvsvoSafXZ1+YeVIKkvQSrj017dob/e6bWGT4v45fIB7KvGO4yg/hljW0Y77INq1ljGtNdZrEAlgWWwdU7jN8Kfr/PAlis95hDD+Y+uwq1wMo18h5TmADA3mH0mqDuMVPOM38B55BpP+SN4FgAAAAASUVORK5CYII=";
-  image.width = 20;
+  if (centerElements) {
+    quoteCtx.textAlign = "center";
+  }
 
-  if (showAttribution) {
+  // handle canvas entirely differently based on photo or not
+  if (includePhoto && photoURL != "") {
+    var attribY = wrapText(quoteCtx, "\“" + quote + "\”", centerElements ? 750 : 520,
+      canvas.height / 2 - (showAttribution ? 100 : 70), 460, 48);
 
-	  // NAME TEXT
-	  var nameCtx = canvas.getContext("2d");
-	  nameCtx.font = "38px neuzeit-grotesk";
-	  nameCtx.fillStyle = "#ffffff";
-	  nameCtx.fillText(name + " | ", 50, canvas.height - 70);
+    // load logo
+    var image = new Image();
+    image.onload = function() {
+      var aspect = image.width / image.height;
+      if (useWordmark) {
+        var width = 40 * aspect;
+        quoteCtx.drawImage(image, canvas.width - width - 40, 40, width, 40);
+      } else {
+        var width = 50 * aspect;
+        quoteCtx.drawImage(image, canvas.width - width - 40, 40, width, 50);
+      }
+    }
 
-	  // TITLE TEXT
-	  var titleCtx = canvas.getContext("2d");
-	  titleCtx.font = "100 38px neuzeit-grotesk";
-	  titleCtx.fillText(title, nameCtx.measureText(name + " | ").width + 60, canvas.height - 70);
-	}
+    // load photo
+    var photo = new Image();
+    photo.onload = function() {
+      quoteCtx.drawImage(photo, 30, 30, 440, 440);
+    }
+    photo.src = photoURL;
+
+    if (showAttribution) {
+      quoteCtx.textAlign = "left"; // makes below calculations work\
+      var nameCtx = canvas.getContext("2d");
+      var titleCtx = canvas.getContext("2d");
+
+      // NAME TEXT
+      nameCtx.font = "38px neuzeit-grotesk";
+      if (inverseColors) {
+        nameCtx.fillStyle = primary[pub];
+      } else {
+        nameCtx.fillStyle = "#ffffff";
+      }
+      nameCtx.fillText(name, 520, attribY + 100 < (canvas.height - 70) ? attribY + 100 : canvas.height - 70);
+
+      // TITLE TEXT
+      titleCtx.font = "100 30px neuzeit-grotesk";
+      titleCtx.fillText(title, 520, attribY + 140 < (canvas.height - 30) ? attribY + 140 : canvas.height - 30);
+  	}
+  } else {
+    // NO PHOTO
+    wrapText(quoteCtx, "\“" + quote + "\”", centerElements ? 500 : 50,
+      canvas.height / 2 - (showAttribution ? 50 : 0), 800, 48);
+
+    // load logo
+    var image = new Image();
+    image.onload = function() {
+      var aspect = image.width / image.height;
+      var width = 50 * aspect;
+      quoteCtx.drawImage(image, (centerElements ? (canvas.width - width) / 2 + 10 : canvas.width - width - 50), 50,
+        width, 50);
+    }
+
+    if (showAttribution) {
+      quoteCtx.textAlign = "left"; // makes below calculations work\
+      var nameCtx = canvas.getContext("2d");
+      var titleCtx = canvas.getContext("2d");
+      var nameLength = nameCtx.measureText(name + " |").width;
+      var titleLength = titleCtx.measureText(title).width;
+
+      var nameCtxX = centerElements ? (canvas.width / 2 - nameLength / 2 - titleLength / 2) : 50;
+      var titleCtxX = nameLength + nameCtxX + 30;
+
+      // NAME TEXT
+      nameCtx.font = "38px neuzeit-grotesk";
+      if (inverseColors) {
+        nameCtx.fillStyle = primary[pub];
+      } else {
+        nameCtx.fillStyle = "#ffffff";
+      }
+      nameCtx.fillText(name + " |", nameCtxX, canvas.height - 70);
+
+      // TITLE TEXT
+      titleCtx.font = "100 38px neuzeit-grotesk";
+      titleCtx.fillText(title, titleCtxX, canvas.height - 70);
+  	}
+  }
+
+  // add logo
+  if (useWordmark) {
+    if (inverseColors) {
+      image.src = "logos/inverse-dp-wordmark.svg";
+    } else {
+      image.src = "logos/dp-wordmark.svg";
+    }
+  } else {
+    if (inverseColors) {
+      image.src = inverse[pub];
+    } else {
+      image.src = logo[pub];
+    }
+  }
 }
 
 window.setTimeout(function() {
   renderContent();
-}, 700)
+}, 700);
+
 document.getElementById('quoteBox').oninput = function() {
   quote = this.value;
   renderContent();
@@ -80,7 +177,7 @@ document.getElementById('quoteTitle').oninput = function() {
   renderContent();
 }
 
-document.getElementById('saveButton').addEventListener("click", function() {
+document.getElementById('saveButton').addEventListener('click', function() {
   var dataURL = canvas.toDataURL("image/png");
   var data = atob(dataURL.substring("data:image/png;base64,".length)),
     asArray = new Uint8Array(data.length);
@@ -91,31 +188,68 @@ document.getElementById('saveButton').addEventListener("click", function() {
     type: "image/png"
   });
   saveAs(blob, "quote.png");
-
 });
 
-/*
-*
-* Event Handlers
-*
-*/
+// EVENT HANDLERS
 
 // Toggle Attribution
 var toggleAttrCheckbox = document.getElementById('toggleAttribution');
-
-function toggleAttribution() {
+toggleAttrCheckbox.addEventListener('click', function() {
 	showAttribution = !showAttribution;
 	renderContent();
-}
-
-toggleAttrCheckbox.addEventListener('click', toggleAttribution);
+});
 
 // Toggle Center Elements
 var toggleCenterCheckbox = document.getElementById('centerElements');
-
-function toggleCenterElements() {
+toggleCenterCheckbox.addEventListener('click', function() {
 	centerElements = !centerElements;
 	renderContent();
-};
+});
 
-toggleCenterCheckbox.addEventListener('click', toggleCenterElements);
+// Toggle Inverse Colors
+var toggleColorsCheckbox = document.getElementById('inverseColors');
+toggleColorsCheckbox.addEventListener('click', function() {
+	inverseColors = !inverseColors;
+	renderContent();
+});
+
+// Change Selected Publication
+var publicationSelect = document.getElementById('publicationSelect');
+publicationSelect.addEventListener('change', function() {
+  // wordmark is only available for DP
+  if (document.getElementById('publicationSelect').selectedIndex != 0) {
+    document.getElementById('useWordmark').disabled = true;
+    document.getElementById('useWordmark').checked = false;
+    useWordmark = false;
+  } else {
+    document.getElementById('useWordmark').disabled = false;
+  }
+	renderContent();
+});
+
+// Toggle Wordmark
+var useWordmarkCheckbox = document.getElementById('useWordmark');
+useWordmarkCheckbox.addEventListener('click', function() {
+  useWordmark = !useWordmark;
+	renderContent();
+});
+
+// Include Photo
+var togglePictureCheckbox = document.getElementById('togglePicture');
+togglePictureCheckbox.addEventListener('click', function() {
+  includePhoto = !includePhoto;
+	renderContent();
+});
+
+// Upload Picture
+var uploadPicture = document.getElementById('uploadPicture');
+var fileInput = document.getElementById('fileInput');
+uploadPicture.addEventListener('click', function() {
+  fileInput.click();
+});
+fileInput.addEventListener('change', function() {
+  if (this.files && this.files[0]) {
+    photoURL = URL.createObjectURL(this.files[0]);
+  }
+  renderContent();
+});
