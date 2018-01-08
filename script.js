@@ -1,8 +1,12 @@
 var quote = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
-var name = "Johnathan Mayer";
-var title = "Singer-Singwriter";
+var name = "Amy Gutmann";
+var title = "Penn President";
 var showAttribution = true;
 var centerElements = false;
+var inverseColors = false;
+
+// colors by publication
+var primary = ['#aa1e22', '#44bfbf', '#446cb3'];
 
 var wrapText = function(context, text, x, y, maxWidth, lineHeight) {
   var words = text.split(' ');
@@ -23,20 +27,32 @@ var wrapText = function(context, text, x, y, maxWidth, lineHeight) {
   context.fillText(line, x, y);
 }
 
-
 var renderContent = function() {
   var canvas = document.getElementById("canvas");
   canvas.width = 1000;
   canvas.height = 500;
 
+  var pub = document.getElementById("publicationSelect").selectedIndex;
+
   // QUOTE TEXT + BG + IMG
   var quoteCtx = canvas.getContext("2d");
-  quoteCtx.fillStyle = "#aa1e22";
+  quoteCtx.fillStyle = primary[pub];
   quoteCtx.fillRect(0, 0, canvas.width, canvas.height);
+  if (inverseColors) {
+    quoteCtx.fillStyle = "#ffffff";
+    quoteCtx.fillRect(10, 10, canvas.width - 20, canvas.height - 20);
+  }
+
+  if (centerElements) {
+    quoteCtx.textAlign = "center";
+  }
 
   quoteCtx.font = "200 38px lora";
-  quoteCtx.fillStyle = "#ffffff";
-  // quoteCtx.textAlign = "left";
+  if (inverseColors) {
+    quoteCtx.fillStyle = primary[pub];
+  } else {
+    quoteCtx.fillStyle = "#ffffff";
+  }
   wrapText(quoteCtx, quote + "\”", 50, canvas.height / 2 - (showAttribution ? 50 : 0), 800, 48);
   quoteCtx.fillText("\“", 36, canvas.height / 2 - (showAttribution ? 50 : 0));
 
@@ -48,11 +64,14 @@ var renderContent = function() {
   image.width = 20;
 
   if (showAttribution) {
-
 	  // NAME TEXT
 	  var nameCtx = canvas.getContext("2d");
 	  nameCtx.font = "38px neuzeit-grotesk";
-	  nameCtx.fillStyle = "#ffffff";
+    if (inverseColors) {
+      nameCtx.fillStyle = primary[pub];
+    } else {
+      nameCtx.fillStyle = "#ffffff";
+    }
 	  nameCtx.fillText(name + " | ", 50, canvas.height - 70);
 
 	  // TITLE TEXT
@@ -64,7 +83,8 @@ var renderContent = function() {
 
 window.setTimeout(function() {
   renderContent();
-}, 700)
+}, 700);
+
 document.getElementById('quoteBox').oninput = function() {
   quote = this.value;
   renderContent();
@@ -91,7 +111,6 @@ document.getElementById('saveButton').addEventListener("click", function() {
     type: "image/png"
   });
   saveAs(blob, "quote.png");
-
 });
 
 /*
@@ -102,20 +121,27 @@ document.getElementById('saveButton').addEventListener("click", function() {
 
 // Toggle Attribution
 var toggleAttrCheckbox = document.getElementById('toggleAttribution');
-
-function toggleAttribution() {
+toggleAttrCheckbox.addEventListener('click', function() {
 	showAttribution = !showAttribution;
 	renderContent();
-}
-
-toggleAttrCheckbox.addEventListener('click', toggleAttribution);
+});
 
 // Toggle Center Elements
 var toggleCenterCheckbox = document.getElementById('centerElements');
-
-function toggleCenterElements() {
+toggleCenterCheckbox.addEventListener('click', function() {
 	centerElements = !centerElements;
 	renderContent();
-};
+});
 
-toggleCenterCheckbox.addEventListener('click', toggleCenterElements);
+// Toggle Inverse Colors
+var toggleColorsCheckbox = document.getElementById('inverseColors');
+toggleColorsCheckbox.addEventListener('click', function() {
+	inverseColors = !inverseColors;
+	renderContent();
+});
+
+// Change Selected Publication
+var publicationSelect = document.getElementById('publicationSelect');
+publicationSelect.addEventListener('change', function() {
+	renderContent();
+});
