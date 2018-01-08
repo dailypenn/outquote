@@ -121,7 +121,7 @@ var renderContent = function() {
       quoteCtx.textAlign = "left"; // makes below calculations work\
       var nameCtx = canvas.getContext("2d");
       var titleCtx = canvas.getContext("2d");
-      var nameLength = nameCtx.measureText(name + " | ").width;
+      var nameLength = nameCtx.measureText(name + " |").width;
       var titleLength = titleCtx.measureText(title).width;
 
       var nameCtxX = centerElements ? (canvas.width / 2 - nameLength / 2 - titleLength / 2) : 50;
@@ -134,7 +134,7 @@ var renderContent = function() {
       } else {
         nameCtx.fillStyle = "#ffffff";
       }
-      nameCtx.fillText(name + " | ", nameCtxX, canvas.height - 70);
+      nameCtx.fillText(name + " |", nameCtxX, canvas.height - 70);
 
       // TITLE TEXT
       titleCtx.font = "100 38px neuzeit-grotesk";
