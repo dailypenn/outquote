@@ -5,13 +5,14 @@ var showAttribution = true;
 var centerElements = false;
 var inverseColors = false;
 var useWordmark = false;
+var useSports = false;
 var includePhoto = false;
 var photoURL = "";
 
 // colors by publication
-var primary = ['#aa1e22', '#44bfbf', '#446cb3'];
-var logo = ['logos/dp.svg', 'logos/street.svg', 'logos/utb.svg'];
-var inverse = ['logos/inverse-dp.svg', 'logos/inverse-street.svg', 'logos/utb.svg'];
+const primary = ['#aa1e22', '#44bfbf', '#446cb3'];
+const logo = ['logos/dp.svg', 'logos/street.svg', 'logos/utb.svg'];
+const inverse = ['logos/inverse-dp.svg', 'logos/inverse-street.svg', 'logos/utb.svg'];
 
 var wrapText = function(context, text, x, y, maxWidth, lineHeight) {
   var words = text.split(' ');
@@ -143,7 +144,13 @@ var renderContent = function() {
   }
 
   // add logo
-  if (useWordmark) {
+  if (useSports) {
+    if (inverseColors) {
+      image.src = "logos/inverse-sports.svg";
+    } else {
+      image.src = "logos/sports.svg";
+    }
+  } else if (useWordmark) {
     if (inverseColors) {
       image.src = "logos/inverse-dp-wordmark.svg";
     } else {
@@ -216,13 +223,17 @@ toggleColorsCheckbox.addEventListener('click', function() {
 // Change Selected Publication
 var publicationSelect = document.getElementById('publicationSelect');
 publicationSelect.addEventListener('change', function() {
-  // wordmark is only available for DP
+  // wordmark and sports are only available for DP
   if (document.getElementById('publicationSelect').selectedIndex != 0) {
     document.getElementById('useWordmark').disabled = true;
     document.getElementById('useWordmark').checked = false;
     useWordmark = false;
+    document.getElementById('useSports').disabled = true;
+    document.getElementById('useSports').checked = false;
+    useSports = false;
   } else {
     document.getElementById('useWordmark').disabled = false;
+    document.getElementById('useSports').disabled = false;
   }
 	renderContent();
 });
@@ -231,6 +242,13 @@ publicationSelect.addEventListener('change', function() {
 var useWordmarkCheckbox = document.getElementById('useWordmark');
 useWordmarkCheckbox.addEventListener('click', function() {
   useWordmark = !useWordmark;
+	renderContent();
+});
+
+// Toggle Wordmark
+var useSportsCheckbox = document.getElementById('useSports');
+useSportsCheckbox.addEventListener('click', function() {
+  useSports = !useSports;
 	renderContent();
 });
 
