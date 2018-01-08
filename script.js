@@ -36,6 +36,7 @@ var renderContent = function() {
 
   quoteCtx.font = "200 38px lora";
   quoteCtx.fillStyle = "#ffffff";
+
   if (centerElements) quoteCtx.textAlign = "center";
   wrapText(quoteCtx, "\“" + quote + "\”", 
     centerElements ? 500 : 50, 
@@ -113,16 +114,21 @@ document.getElementById('saveButton').addEventListener("click", function() {
 
 // Toggle Attribution
 var toggleAttrCheckbox = document.getElementById('toggleAttribution');
+
 function toggleAttribution() {
 	showAttribution = !showAttribution;
 	renderContent();
 }
+
 toggleAttrCheckbox.addEventListener('click', toggleAttribution);
 
 // Toggle Center Elements
 var toggleCenterCheckbox = document.getElementById('centerElements');
+
 function toggleCenterElements() {
 	centerElements = !centerElements;
 	renderContent();
 };
+
 toggleCenterCheckbox.addEventListener('click', toggleCenterElements);
+box.addEventListener('click', toggleCenterElements);
