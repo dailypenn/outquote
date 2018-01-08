@@ -46,22 +46,22 @@ var renderContent = function() {
     quoteCtx.fillRect(10, 10, canvas.width - 20, canvas.height - 20);
   }
 
-  if (centerElements) {
-    quoteCtx.textAlign = "center";
-  }
-
   quoteCtx.font = "200 38px lora";
   if (inverseColors) {
     quoteCtx.fillStyle = primary[pub];
   } else {
     quoteCtx.fillStyle = "#ffffff";
   }
-  wrapText(quoteCtx, quote + "\”", 50, canvas.height / 2 - (showAttribution ? 50 : 0), 800, 48);
-  quoteCtx.fillText("\“", 36, canvas.height / 2 - (showAttribution ? 50 : 0));
+
+  if (centerElements) {
+    quoteCtx.textAlign = "center";
+  }
+  wrapText(quoteCtx, "\“" + quote + "\”", centerElements ? 500 : 50,
+    canvas.height / 2 - (showAttribution ? 50 : 0), 800, 48);
 
   var image = new Image();
   image.onload = function() {
-      quoteCtx.drawImage(image, canvas.width - 150, 70, 92, 70);
+      quoteCtx.drawImage(image, (centerElements ? canvas.width / 2 - 20: canvas.width - 150), 70, 92, 70);
   }
   if (useWordmark) {
     if (inverseColors) {
@@ -79,20 +79,28 @@ var renderContent = function() {
   image.width = 20;
 
   if (showAttribution) {
-	  // NAME TEXT
-	  var nameCtx = canvas.getContext("2d");
-	  nameCtx.font = "38px neuzeit-grotesk";
+    quoteCtx.textAlign = "left"; // makes below calculations work\
+    var nameCtx = canvas.getContext("2d");
+    var titleCtx = canvas.getContext("2d");
+    var nameLength = nameCtx.measureText(name + " | ").width;
+    var titleLength = titleCtx.measureText(title).width;
+
+    var nameCtxX = centerElements ? (canvas.width / 2 - nameLength / 2 - titleLength / 2) : 50;
+
+    var titleCtxX = nameLength + nameCtxX + 30;
+
+    // NAME TEXT
+    nameCtx.font = "38px neuzeit-grotesk";
     if (inverseColors) {
       nameCtx.fillStyle = primary[pub];
     } else {
       nameCtx.fillStyle = "#ffffff";
     }
-	  nameCtx.fillText(name + " | ", 50, canvas.height - 70);
+    nameCtx.fillText(name + " | ", nameCtxX, canvas.height - 70);
 
-	  // TITLE TEXT
-	  var titleCtx = canvas.getContext("2d");
-	  titleCtx.font = "100 38px neuzeit-grotesk";
-	  titleCtx.fillText(title, nameCtx.measureText(name + " | ").width + 60, canvas.height - 70);
+    // TITLE TEXT
+    titleCtx.font = "100 38px neuzeit-grotesk";
+    titleCtx.fillText(title, titleCtxX, canvas.height - 70);
 	}
 }
 
