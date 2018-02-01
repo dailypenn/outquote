@@ -2,6 +2,7 @@ var quote = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do ei
 var name = "Amy Gutmann";
 var title = "Penn President";
 var showAttribution = true;
+var includeLogo = true;
 var centerElements = false;
 var inverseColors = false;
 var useWordmark = false;
@@ -61,21 +62,25 @@ var renderContent = function() {
     quoteCtx.textAlign = "center";
   }
 
-  // handle canvas entirely differently based on photo or not
+  /* * * * * * * * * * * * * * * * * * * * *
+  * RENDER CANVAS WITH PHOTO
+  * * * * * * * * * * * * * * *  * * * * * */
   if (includePhoto && photoURL != "") {
     var attribY = wrapText(quoteCtx, "\“" + quote + "\”", centerElements ? 750 : 520,
       canvas.height / 2 - (showAttribution ? 100 : 70), 460, 48);
 
     // load logo
-    var image = new Image();
-    image.onload = function() {
-      var aspect = image.width / image.height;
-      if (useWordmark) {
-        var width = 40 * aspect;
-        quoteCtx.drawImage(image, canvas.width - width - 40, 40, width, 40);
-      } else {
-        var width = 50 * aspect;
-        quoteCtx.drawImage(image, canvas.width - width - 40, 40, width, 50);
+    if (includeLogo) {
+      var image = new Image();
+      image.onload = function() {
+        var aspect = image.width / image.height;
+        if (useWordmark) {
+          var width = 40 * aspect;
+          quoteCtx.drawImage(image, canvas.width - width - 40, 40, width, 40);
+        } else {
+          var width = 50 * aspect;
+          quoteCtx.drawImage(image, canvas.width - width - 40, 40, width, 50);
+        }
       }
     }
 
@@ -104,22 +109,30 @@ var renderContent = function() {
       titleCtx.font = "100 30px neuzeit-grotesk";
       titleCtx.fillText(title, 520, attribY + 140 < (canvas.height - 30) ? attribY + 140 : canvas.height - 30);
   	}
+
+
+  /* * * * * * * * * * * * * * * * * * * * *
+  * RENDER CANVAS WITHOUT PHOTO
+  * * * * * * * * * * * * * * *  * * * * * */
   } else {
-    // NO PHOTO
+    var quoteBottomSpacing = (showAttribution ? 0 : -20) + (includeLogo ? 50 : 120)
+     + (!showAttribution && !includeLogo ? 40 : 0);
     wrapText(quoteCtx, "\“" + quote + "\”", centerElements ? 500 : 50,
-      canvas.height / 2 - (showAttribution ? 50 : 0), 800, 48);
+      canvas.height / 2 - quoteBottomSpacing, 800, 48);
 
     // load logo
-    var image = new Image();
-    image.onload = function() {
-      var aspect = image.width / image.height;
-      var width = 50 * aspect;
-      quoteCtx.drawImage(image, (centerElements ? (canvas.width - width) / 2 + 10 : canvas.width - width - 50), 50,
-        width, 50);
+    if (includeLogo) {
+      var image = new Image();
+      image.onload = function() {
+        var aspect = image.width / image.height;
+        var width = 50 * aspect;
+        quoteCtx.drawImage(image, (centerElements ? (canvas.width - width) / 2 + 10 : canvas.width - width - 50), 50,
+          width, 50);
+      }
     }
 
     if (showAttribution) {
-      quoteCtx.textAlign = "left"; // makes below calculations work\
+      quoteCtx.textAlign = "left"; // makes below calculations work
       var nameCtx = canvas.getContext("2d");
       var titleCtx = canvas.getContext("2d");
       var nameLength = nameCtx.measureText(name + " |").width;
@@ -135,11 +148,13 @@ var renderContent = function() {
       } else {
         nameCtx.fillStyle = "#ffffff";
       }
-      nameCtx.fillText(name + " |", nameCtxX, canvas.height - 70);
+      nameCtx.fillText(name + " |", nameCtxX, canvas.height - (includeLogo ? 70 : 120)
+        + (!includeLogo && showAttribution ? 50 : 0));
 
       // TITLE TEXT
       titleCtx.font = "100 38px neuzeit-grotesk";
-      titleCtx.fillText(title, titleCtxX, canvas.height - 70);
+      titleCtx.fillText(title, titleCtxX, canvas.height - (includeLogo ? 70 : 120)
+        + (!includeLogo && showAttribution ? 50 : 0));
   	}
   }
 
@@ -269,5 +284,12 @@ fileInput.addEventListener('change', function() {
   if (this.files && this.files[0]) {
     photoURL = URL.createObjectURL(this.files[0]);
   }
+  renderContent();
+});
+
+// Include logo
+var toggleLogoCheckbox = document.getElementById('toggleLogo');
+toggleLogoCheckbox.addEventListener('click', function() {
+  includeLogo = !includeLogo;
   renderContent();
 });
