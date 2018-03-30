@@ -186,6 +186,13 @@ window.setTimeout(function() {
 
 document.getElementById('quoteBox').oninput = function() {
   quote = this.value;
+
+  // Convert all quotes to curly quotes
+  quote = quote.replace(/\b'/g, "\’");
+  quote = quote.replace(/'(?=\d)/g, "\’");
+  quote = quote.replace(/'(?=\b|$)/g, "\‘");
+  quote = quote.replace(/\b"/g, "\”");
+  quote = quote.replace(/"(?=\w|$)/g, "\“");
   renderContent();
 }
 
