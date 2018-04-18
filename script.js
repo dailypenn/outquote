@@ -2,6 +2,7 @@ var quote = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do ei
 var name = "Amy Gutmann";
 var title = "Penn President";
 var showAttribution = true;
+var showAttributionTitle = true;
 var includeLogo = true;
 var centerElements = false;
 var inverseColors = false;
@@ -97,19 +98,23 @@ var renderContent = function() {
       var titleCtx = canvas.getContext("2d");
 
       // NAME TEXT
-      nameCtx.font = "38px neuzeit-grotesk";
+      nameCtx.font = (showAttributionTitle) ? "38px neuzeit-grotesk" : "100 38px neuzeit-grotesk";
       if (inverseColors) {
         nameCtx.fillStyle = primary[pub];
       } else {
         nameCtx.fillStyle = "#ffffff";
       }
-      nameCtx.fillText(name, 520, attribY + 100 < (canvas.height - 70) ? attribY + 100 : canvas.height - 70);
+      var nameY = (showAttributionTitle) ?
+        attribY + 100 < (canvas.height - 70) ? attribY + 100 : canvas.height - 70 :
+        attribY + 135 < (canvas.height - 35) ? attribY + 135 : canvas.height - 35;
+      nameCtx.fillText(name, 520, nameY);
 
       // TITLE TEXT
-      titleCtx.font = "100 30px neuzeit-grotesk";
-      titleCtx.fillText(title, 520, attribY + 140 < (canvas.height - 30) ? attribY + 140 : canvas.height - 30);
+      if (showAttributionTitle) {
+        titleCtx.font = "100 30px neuzeit-grotesk";
+        titleCtx.fillText(title, 520, attribY + 140 < (canvas.height - 30) ? attribY + 140 : canvas.height - 30);
+      }
   	}
-
 
   /* * * * * * * * * * * * * * * * * * * * *
   * RENDER CANVAS WITHOUT PHOTO
@@ -135,26 +140,29 @@ var renderContent = function() {
       quoteCtx.textAlign = "left"; // makes below calculations work
       var nameCtx = canvas.getContext("2d");
       var titleCtx = canvas.getContext("2d");
-      var nameLength = nameCtx.measureText(name + " |").width;
+      var nameLength = (showAttributionTitle) ? nameCtx.measureText(name + " |").width : nameCtx.measureText(name).width;
       var titleLength = titleCtx.measureText(title).width;
 
-      var nameCtxX = centerElements ? (canvas.width / 2 - nameLength / 2 - titleLength / 2) : 50;
+      var centerPos = (showAttributionTitle) ? canvas.width / 2 - nameLength / 2 - titleLength / 2 : canvas.width / 2 - nameLength / 2;
+      var nameCtxX = centerElements ? centerPos : 50;
       var titleCtxX = nameLength + nameCtxX + 30;
 
       // NAME TEXT
-      nameCtx.font = "38px neuzeit-grotesk";
+      nameCtx.font = (showAttributionTitle) ? "38px neuzeit-grotesk" : "100 38px neuzeit-grotesk";
       if (inverseColors) {
         nameCtx.fillStyle = primary[pub];
       } else {
         nameCtx.fillStyle = "#ffffff";
       }
-      nameCtx.fillText(name + " |", nameCtxX, canvas.height - (includeLogo ? 70 : 120)
-        + (!includeLogo && showAttribution ? 50 : 0));
+      nameCtx.fillText((showAttributionTitle) ? name + " |" : name, nameCtxX,
+        canvas.height - (includeLogo ? 70 : 120) + (!includeLogo && showAttribution ? 50 : 0));
 
       // TITLE TEXT
-      titleCtx.font = "100 38px neuzeit-grotesk";
-      titleCtx.fillText(title, titleCtxX, canvas.height - (includeLogo ? 70 : 120)
-        + (!includeLogo && showAttribution ? 50 : 0));
+      if (showAttributionTitle) {
+        titleCtx.font = "100 38px neuzeit-grotesk";
+        titleCtx.fillText(title, titleCtxX, canvas.height - (includeLogo ? 70 : 120)
+          + (!includeLogo && showAttribution ? 50 : 0));
+      }
   	}
   }
 
@@ -228,6 +236,14 @@ toggleAttrCheckbox.addEventListener('click', function() {
 	renderContent();
 });
 
+// Toggle Attribution Title
+var toggleAttrTitleCheckbox = document.getElementById('toggleAttributionTitle');
+toggleAttrTitleCheckbox.addEventListener('click', function() {
+	showAttributionTitle = !showAttributionTitle;
+  name = document.getElementById('quoteAttr').value || "Amy Gutmann";
+	renderContent();
+});
+
 // Toggle Center Elements
 var toggleCenterCheckbox = document.getElementById('centerElements');
 toggleCenterCheckbox.addEventListener('click', function() {
@@ -267,7 +283,7 @@ useWordmarkCheckbox.addEventListener('click', function() {
 	renderContent();
 });
 
-// Toggle Wordmark
+// Toggle Sports Logo
 var useSportsCheckbox = document.getElementById('useSports');
 useSportsCheckbox.addEventListener('click', function() {
   useSports = !useSports;
