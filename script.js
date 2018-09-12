@@ -140,21 +140,20 @@ var renderContent = function() {
       quoteCtx.textAlign = "left"; // makes below calculations work
       var nameCtx = canvas.getContext("2d");
       var titleCtx = canvas.getContext("2d");
-      var nameLength = (showAttributionTitle) ? nameCtx.measureText(name + " |").width : nameCtx.measureText(name).width;
+
+      // set the nameCtx font to get correct width measurement
+      nameCtx.font = (showAttributionTitle) ? "38px neuzeit-grotesk" : "100 38px neuzeit-grotesk";
+
+      var nameLength = (showAttributionTitle) ? nameCtx.measureText(name + " | ").width : nameCtx.measureText(name).width;
       var titleLength = titleCtx.measureText(title).width;
 
       var centerPos = (showAttributionTitle) ? canvas.width / 2 - nameLength / 2 - titleLength / 2 : canvas.width / 2 - nameLength / 2;
       var nameCtxX = centerElements ? centerPos : 50;
-      var titleCtxX = nameLength + nameCtxX + 30;
+      var titleCtxX = nameLength + nameCtxX;
 
       // NAME TEXT
-      nameCtx.font = (showAttributionTitle) ? "38px neuzeit-grotesk" : "100 38px neuzeit-grotesk";
-      if (inverseColors) {
-        nameCtx.fillStyle = primary[pub];
-      } else {
-        nameCtx.fillStyle = "#ffffff";
-      }
-      nameCtx.fillText((showAttributionTitle) ? name + " |" : name, nameCtxX,
+      nameCtx.fillStyle = inverseColors ? primary[pub] : "#ffffff";
+      nameCtx.fillText((showAttributionTitle) ? name + " | " : name, nameCtxX,
         canvas.height - (includeLogo ? 70 : 120) + (!includeLogo && showAttribution ? 50 : 0));
 
       // TITLE TEXT
