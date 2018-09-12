@@ -12,9 +12,9 @@ var includePhoto = false;
 var photoURL = "";
 
 // colors by publication
-const primary = ['#aa1e22', '#44bfbf', '#446cb3'];
+const primary = ['#aa1e22', '#44bfbf', '#456CB3'];
 const logo = ['logos/dp.svg', 'logos/street.svg', 'logos/utb.svg'];
-const inverse = ['logos/inverse-dp.svg', 'logos/inverse-street.svg', 'logos/utb.svg'];
+const inverse = ['logos/inverse-dp.svg', 'logos/inverse-street.svg', 'logos/inverse-utb.svg'];
 
 var wrapText = function(context, text, x, y, maxWidth, lineHeight) {
   var words = text.split(' ');
