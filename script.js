@@ -178,7 +178,7 @@ var renderContent = function() {
     } else {
       image.src = "logos/dp-wordmark.svg";
     }
-  } else {
+  } else if (includeLogo) {
     if (inverseColors) {
       image.src = inverse[pub];
     } else {
